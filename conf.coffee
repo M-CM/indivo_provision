@@ -19,7 +19,7 @@ exports.servers =
   staging:
     name: exports.appName + " Staging"
     #hostname: exports.appName.toLowerCase + "_staging"
-    hostname: "108.166.59.92"
+    hostname: "50.57.135.25"
     imageName: /Ubuntu.*12\.04.*/i
     flavorName: "256 server"
     packages: packages

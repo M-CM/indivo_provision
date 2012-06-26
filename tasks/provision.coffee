@@ -4,6 +4,7 @@ cloudservers = require "cloudservers"
 commander = require "commander"
 conf = require "../conf"
 control = require "control"
+events = require "events"
 
 out = console.log
 
@@ -19,7 +20,11 @@ provision = ->
         opt.name = conf.servers.staging.name
         opt.client = client
         createServer opt, (server) ->
-          #done
+          out "Server build complete"
+          out "Name: #{server.name}"
+          out "IP: #{server.addresses.public[0]}"
+          out "adminPass: #{server.adminPass}"
+          module.exports.emit "done", server
 
 exit = (error) ->
   process.stderr.write(error + "\n")
@@ -72,3 +77,4 @@ createServer = (opt, callback) ->
 control.task "provision", "Create a new rackspace server", provision
 
 module.exports = {getFlavor, getImage}
+_.extend module.exports, events.EventEmitter.prototype
