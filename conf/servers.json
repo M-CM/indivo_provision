@@ -1,0 +1,7 @@
+{
+  "development": {
+    "name": "M-CM-indivox-dev",
+    "address": "50.56.70.55",
+    "flavorName": "256 server"
+  }
+}

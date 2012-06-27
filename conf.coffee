@@ -1,3 +1,4 @@
+fs = require "fs"
 exports.appName = "M-CM Indivo"
 exports.env =
   production: false
@@ -5,6 +6,9 @@ exports.env =
   test: false
   development: false
 
+exports.indivo =
+  serverDistURL: "http://cloud.github.com/downloads/chb/indivo_server/indivo_server-v2.0.0.tar.gz"
+  installPrefix: "/web"
 #http://wiki.chip.org/indivo/index.php/HOWTO:_install_Indivo_X#Pre-Requisites
 packages = [
   "apache2-mpm-prefork"
@@ -15,17 +19,13 @@ packages = [
   "python-setuptools"
   "zsh"
 ]
-exports.servers =
-  staging:
-    name: exports.appName + " Staging"
-    #hostname: exports.appName.toLowerCase + "_staging"
-    hostname: "50.57.135.25"
-    imageName: /Ubuntu.*12\.04.*/i
-    flavorName: "256 server"
-    packages: packages
-    easyInstall: ["South", "Markdown", "rdflib"]
-    user: process.env.USER
+serverJSON = fs.readFileSync("conf/servers.json")
+exports.servers = JSON.parse serverJSON
+for name, server of exports.servers
+  server.packages = packages
+  server.easyInstall = ["South", "Markdown", "rdflib"]
+  server.imageName = /Ubuntu.*12\.04.*/i
+  server.user = process.env.USER
 exports.rackspace =
   auth:
     username: "focusaurus"
-    apiKey: "thisisnottherealapikey"

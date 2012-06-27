@@ -1,11 +1,14 @@
 conf = require "../conf"
 control = require "control"
 
-#MD5 of "indivo" is 3194fed403269ee73581b217de394c36
-
 indivoDB = (server, callback) ->
   script = """#!/bin/sh
-su postgres -c psql <<'EOF' > /dev/null
+cat << EOF >> /etc/postgresql/9.1/main/pg_hba.conf
+#Added for M-CM Indivo X Server Configuration
+local   all             all                                     md5
+EOF
+service postgresql restart
+su postgres -c psql <<'EOF'
 DO
 $body$
 BEGIN
@@ -14,7 +17,7 @@ BEGIN
       FROM   pg_catalog.pg_user
       WHERE  usename = 'indivo') THEN
 
-      CREATE ROLE indivo LOGIN ENCRYPTED PASSWORD 'md53194fed403269ee73581b217de394c36' SUPERUSER;
+      CREATE ROLE indivo LOGIN PASSWORD 'indivo' SUPERUSER;
    END IF;
 END
 $body$

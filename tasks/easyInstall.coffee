@@ -10,7 +10,6 @@ easy_install ${PACKAGES}
   server.script script, true, callback
 
 control.task "easyInstall", "Install Easy Install Python Packages", (server) ->
-  server.easyInstall = conf.servers.staging.easyInstall
   easyInstall server, (error) ->
     throw error if error
 

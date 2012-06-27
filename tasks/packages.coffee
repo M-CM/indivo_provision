@@ -11,7 +11,6 @@ apt-get install --yes ${PACKAGES}
   server.script script, true, callback
 
 control.task "packages", "Install OS packages", (server) ->
-  server.packages = conf.servers.staging.packages
   packages server, (error) ->
     throw error if error
 

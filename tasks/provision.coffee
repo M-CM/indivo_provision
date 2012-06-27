@@ -8,23 +8,31 @@ events = require "events"
 
 out = console.log
 
-provision = ->
+provision = (server) ->
   getCreds ->
     client = cloudservers.createClient conf.rackspace
-    serverConf = conf.servers.staging
+    serverConf = server.conf
     async.parallel
       flavor: (callback) -> getFlavor(client, serverConf.flavorName, callback)
       image: (callback) -> getImage(client, serverConf.imageName, callback)
       (error, opt) ->
         return exit(error) if error
-        opt.name = conf.servers.staging.name
+        opt.name = serverConf.name
         opt.client = client
-        createServer opt, (server) ->
+        console.dir conf.servers[server.configName]
+        createServer opt, (cloudServer) ->
           out "Server build complete"
-          out "Name: #{server.name}"
-          out "IP: #{server.addresses.public[0]}"
-          out "adminPass: #{server.adminPass}"
-          module.exports.emit "done", server
+          out "Name: #{cloudServer.name}"
+          out "IP: #{cloudServer.addresses.public[0]}"
+          out "adminPass: #{cloudServer.adminPass}"
+          #TODO store updated IP in server conf
+          newJSONConfig = _.pick(
+            conf.servers[server.configName], ["name", "flavorName"])
+          newJSONConfig.address = server.addresses.public[0]
+          json = JSON.stringify newJSONConfig
+          fs.writeFile "../conf/servers.json", json, (error) ->
+            throw error if error
+            module.exports.emit "done", server
 
 exit = (error) ->
   process.stderr.write(error + "\n")
@@ -66,13 +74,11 @@ createServer = (opt, callback) ->
     image: opt.image.id
     flavor: opt.flavor.id
 
-  opt.client.createServer options, (error, server) ->
+  opt.client.createServer options, (error, cloudServer) ->
    return callback(error) if error
-   out server
-   conf.servers.staging.address = server.addresses.public[0]
-   out "Waiting for server to become active (2-5 min)"
-   server.setWait {status: "ACTIVE"}, 5000, ->
-      callback server
+   out "Waiting for server to become active (4-10 min)"
+   cloudServer.setWait {status: "ACTIVE"}, 5000, ->
+      callback cloudServer
 
 control.task "provision", "Create a new rackspace server", provision
 
