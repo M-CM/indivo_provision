@@ -62,7 +62,8 @@ resetDB = (server, callback) ->
 cd "#{conf.indivo.installPrefix}/indivo_server"
 #Can't use the stock reset.py. I send in a pull request for a fix
 #https://github.com/chb/indivo_server/pull/18
-echo yes | python utils/reset.py
+#don't syncdb because we have done this already and it prompts for password
+echo yes | python utils/reset.py --no-syncdb
 """
   server.script script, false, callback, callback
 

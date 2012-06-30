@@ -26,7 +26,6 @@ cat << EOF >> settings.py
 #From here down are just what is customized for M-CM's particular installation
 
 INDIVO_UI_SERVER_BASE = "http://${BASEHOST}"
-INDIVO_SERVER_LOCATION = "http://${BASEHOST}:8000"
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'M-CMDEVELOPMENT-INDIVO-SECRET-KEY'
 
