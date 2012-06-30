@@ -10,15 +10,16 @@ installServer = (server, callback) ->
 cd /tmp
 SERVER_DIST_URL="#{conf.indivo.serverDistURL}"
 ARCHIVE=$(basename "${SERVER_DIST_URL}")
-BASE="#{conf.indivo.installPrefix}"
+PREFIX="#{conf.indivo.installPrefix}"
+BASE="${PREFIX}/indivo_server"
 curl --silent --remote-name "${SERVER_DIST_URL}"
 if [ -d "${BASE}" ]; then
   mv "${BASE}" "${BASE}.old.$$"
 fi
-mkdir -p "${BASE}"
-tar xzf "${ARCHIVE}" -C "${BASE}"
+mkdir -p "${PREFIX}"
+tar xzf "${ARCHIVE}" -C "${PREFIX}"
 rm "${ARCHIVE}"
-cd "${BASE}/indivo_server"
+cd "${BASE}"
 cp settings.py.default settings.py
 cat << EOF >> settings.py
 ########## BEGIN M-CM CUSTOMIZATION ##########

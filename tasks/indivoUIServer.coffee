@@ -8,17 +8,16 @@ indivoUIServer = (server, callback) ->
 cd /tmp
 DIST_URL="#{conf.indivo.UIDistURL}"
 ARCHIVE=$(basename "${DIST_URL}")
-BASE="#{conf.indivo.installPrefix}"
-if [ ! -f "${ARCHIVE}" ]; then #@BUG temp dev optimization
-  curl --silent --remote-name "${DIST_URL}"
-fi
+PREFIX="#{conf.indivo.installPrefix}"
+BASE="${PREFIX}/indivo_ui_server"
+curl --silent --remote-name "${DIST_URL}"
 if [ -d "${BASE}" ]; then
   mv "${BASE}" "${BASE}.old.$$"
 fi
-mkdir -p "${BASE}"
-tar xzf "${ARCHIVE}" -C "${BASE}"
-#rm "${ARCHIVE}" #@BUG temp dev optimization
-cd "${BASE}/indivo_ui_server"
+mkdir -p "${PREFIX}"
+tar xzf "${ARCHIVE}" -C "${PREFIX}"
+rm "${ARCHIVE}"
+cd "${BASE}"
 cp settings.py.default settings.py
 BASEHOST="#{server.address}"
 cat << EOF >> settings.py
