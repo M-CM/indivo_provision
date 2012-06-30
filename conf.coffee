@@ -30,4 +30,4 @@ for name, server of exports.servers
   server.user = process.env.USER
 exports.rackspace =
   auth:
-    username: "focusaurus"
+    username: "christycollins"

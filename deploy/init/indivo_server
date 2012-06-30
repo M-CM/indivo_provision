@@ -1,0 +1,8 @@
+description "start and stop the Indivo X server"
+author "Peter Lyons <pete@peterlyons.com>"
+
+start on filesystem and started networking
+respawn
+
+chdir /web/indivo_server
+exec su -c "python manage.py runserver" indivo  >> upstart.log 2>&1
