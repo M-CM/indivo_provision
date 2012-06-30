@@ -24,7 +24,7 @@ install_node() {
 }
 
 ensure_node() {
-  local TARGET_VERSION=$(python ./util/print_node_version.py package.json)
+  local TARGET_VERSION=$(python ./utils/print_node_version.py package.json)
   if [ -x "${NODE_PATH}" ]; then
     local INSTALLED_VERSION=$("${NODE_PATH}" --version)
     if [ "${INSTALLED_VERSION}" == "${TARGET_VERSION}" ]; then

@@ -11,15 +11,13 @@ cd /tmp
 SERVER_DIST_URL="#{conf.indivo.serverDistURL}"
 ARCHIVE=$(basename "${SERVER_DIST_URL}")
 BASE="#{conf.indivo.installPrefix}"
-if [ ! -f "${ARCHIVE}" ]; then #@BUG temp dev optimization
-  curl --silent --remote-name "${SERVER_DIST_URL}"
-fi
+curl --silent --remote-name "${SERVER_DIST_URL}"
 if [ -d "${BASE}" ]; then
   mv "${BASE}" "${BASE}.old.$$"
 fi
 mkdir -p "${BASE}"
 tar xzf "${ARCHIVE}" -C "${BASE}"
-#rm "${ARCHIVE}" #@BUG temp dev optimization
+rm "${ARCHIVE}"
 cd "${BASE}/indivo_server"
 cp settings.py.default settings.py
 cat << EOF >> settings.py
@@ -32,7 +30,9 @@ ADMINS = ('Christy Collins', 'christy@m-cm.net')
 SECRET_KEY = 'M-CMDEVELOPMENT-INDIVO-SECRET-KEY'
 
 # URL prefix (where indivo_server will be accessible from the web)
-SITE_URL_PREFIX = "http://#{server.address}"
+SITE_URL_PREFIX = "http://#{server.address}:8000"
+UI_SERVER_URL = "http://#{server.address}"
+
 
 # Storage Settings
 DATABASES = {
@@ -52,7 +52,9 @@ EOF
 copyConfig = (server, callback) ->
   from = path.join __dirname, "..", "conf", "indivo_data.xml"
   to = path.join conf.indivo.installPrefix, "indivo_server", "utils"
-  server.scp from, to, callback, callback
+  server.scp from, to, ->
+    from = path.join __dirname, "..", "utils", "reset.py"
+    server.scp from, to, callback, callback
 
 resetDB = (server, callback) ->
   script = """#!/bin/sh -e

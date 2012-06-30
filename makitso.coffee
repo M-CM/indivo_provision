@@ -7,6 +7,7 @@ require "./tasks/packages"
 provision = require "./tasks/provision"
 require "./tasks/indivoDB"
 require "./tasks/indivoServer"
+require "./tasks/indivoUIServer"
 require "./tasks/user"
 tasklib = require "./tasks/tasklib"
 
