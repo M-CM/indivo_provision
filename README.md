@@ -32,3 +32,4 @@ the code can automatically download and install the rest of its dependencies.
   ./do staging packages
   ./do staging easyInstall
   ./do staging indivoDB
+  ./do staging indivoServer

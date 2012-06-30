@@ -1,9 +1,11 @@
 #Downloads and installs the indivo server
 #Configures the settings.py and util/indivo_data.xml configuration files
+async = require "async"
 conf = require "../conf"
 control = require "control"
+path = require "path"
 
-indivoServer = (server, callback) ->
+installServer = (server, callback) ->
   script = """#!/bin/sh -e
 cd /tmp
 SERVER_DIST_URL="#{conf.indivo.serverDistURL}"
@@ -44,64 +46,30 @@ DATABASES = {
         },
 }
 EOF
-
-cat << EOF > utils/indivo_data.xml
-<bootstrap>
-  <auth_systems>
-    <auth_system short_name='auth_system_example' internal_p='False' />
-  </auth_systems>
-  <accounts>
-    <account email='christy@m-cm.net'>
-      <full_name>Christy Collins</full_name>
-      <contact_email>christy@m-cm.net</contact_email>
-      <username>christycollins</username>
-      <password>password</password>
-      <records>
-      </records>
-    </account>
-  </accounts>
-  <status_names>
-    <status id='1' name='active' />
-    <status id='2' name='void' />
-    <status id='3' name='archived' />
-  </status_names>
-  <document_schemas>
-    <document_schema type='http://indivo.org/vocab/xml/documents#Contact' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Demographics' />
-    <document_schema type='http://indivo.org/vocab/documentrels#answers' />
-    <document_schema type='http://indivo.org/vocab/documentrels#annotation' />
-    <document_schema type='http://indivo.org/vocab/documentrels#interpretation' />
-    <document_schema type='http://indivo.org/vocab/documentrels#followup' />
-    <document_schema type='http://indivo.org/vocab/documentrels#attachment' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Survey' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#SurveyAnswers' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#UserPreferences' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Allergy' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Annotation' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#AsthmaActionPlan' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#SimpleClinicalNote' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Equipment' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#HBA1C' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Immunization' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Lab' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Medication' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Problem' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Procedure' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#SchoolForm' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#SimpleClinicalNote' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#VitalSign' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#EncryptedDocument' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Genotype' />
-    <document_schema type='http://indivo.org/vocab/xml/documents#Models' />
-  </document_schemas>
-</bootstrap>
-EOF
-echo yes | python utils/reset.py
 """
   server.script script, true, callback
 
-control.task "indivoServer", "Install the Indivo Server Software", (server) ->
-  indivoServer server, (error) ->
-    throw error if error
+copyConfig = (server, callback) ->
+  from = path.join __dirname, "..", "conf", "indivo_data.xml"
+  to = path.join conf.indivo.installPrefix, "indivo_server", "utils"
+  server.scp from, to, callback, callback
+
+resetDB = (server, callback) ->
+  script = """#!/bin/sh -e
+cd "#{conf.indivo.installPrefix}/indivo_server"
+#Can't use the stock reset.py. I send in a pull request for a fix
+#https://github.com/chb/indivo_server/pull/18
+echo yes | python utils/reset.py
+"""
+  server.script script, false, callback, callback
+
+indivoServer = (server) ->
+  async.series [
+    async.apply installServer, server
+    async.apply copyConfig, server
+    async.apply resetDB, server], (error) ->
+      throw error if error
+
+control.task "indivoServer", "Install the Indivo Server Software", indivoServer
 
 module.exports = {indivoServer}

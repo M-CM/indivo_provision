@@ -8,33 +8,40 @@ commander = require "commander"
 conf = require "../conf"
 control = require "control"
 events = require "events"
+fs = require "fs"
+path = require "path"
 
 out = console.log
+confPath =  path.join(__dirname, "..", "conf", "servers.json")
 
 provision = (server) ->
   getCreds ->
     client = cloudservers.createClient conf.rackspace
     async.parallel
-      flavor: (callback) -> getFlavor(client, server.flavorName, callback)
-      image: (callback) -> getImage(client, server.imageName, callback)
+      flavor: async.apply getFlavor, client, server.flavorName
+      image: async.apply getImage, client, server.imageName
       (error, opt) ->
         return exit(error) if error
         opt.name = server.name
         opt.client = client
-        console.dir conf.servers[server.configName]
         createServer opt, (cloudServer) ->
           out "Server build complete"
           out "Name: #{cloudServer.name}"
           out "IP: #{cloudServer.addresses.public[0]}"
           out "adminPass: #{cloudServer.adminPass}"
-          #TODO store updated IP in server conf
-          newJSONConfig = _.pick(
-            conf.servers[server.configName], ["name", "flavorName"])
-          newJSONConfig.address = server.addresses.public[0]
-          json = JSON.stringify newJSONConfig
-          fs.writeFile "../conf/servers.json", json, (error) ->
-            throw error if error
-            module.exports.emit "done", server
+          readConfig server, (error, config) ->
+            return exit(error) if error
+            config[server.configName].address = cloudServer.addresses.public[0]
+            writeConfig config, (error) ->
+              return exit(error) if error
+              module.exports.emit "done", server
+
+readConfig = (server, callback) ->
+  fs.readFile confPath, (error, json) ->
+    callback error, JSON.parse json
+
+writeConfig = (config, callback) ->
+  fs.writeFile confPath, JSON.stringify(config, null, 2), callback
 
 exit = (error) ->
   process.stderr.write(error + "\n")
@@ -78,7 +85,7 @@ createServer = (opt, callback) ->
 
   opt.client.createServer options, (error, cloudServer) ->
    return callback(error) if error
-   out "Waiting for server to become active (4-10 min)"
+   out "Waiting for server to become active (5-10 min)"
    cloudServer.setWait {status: "ACTIVE"}, 5000, ->
       callback cloudServer
 

@@ -12,12 +12,13 @@ exports.indivo =
 #http://wiki.chip.org/indivo/index.php/HOWTO:_install_Indivo_X#Pre-Requisites
 packages = [
   "apache2-mpm-prefork"
+  "curl" #Scripts use this to download files from the web
   "postgresql"
   "python-django"
   "python-lxml"
   "python-psycopg2"
   "python-setuptools"
-  "zsh"
+  "zsh" #plyons's preferred shell
 ]
 serverJSON = fs.readFileSync("conf/servers.json")
 exports.servers = JSON.parse serverJSON
