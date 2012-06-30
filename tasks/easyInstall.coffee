@@ -1,3 +1,6 @@
+#Installs python easy_install packages as provided in an array of strings in the
+#server.easyInstall property
+
 conf = require "../conf"
 control = require "control"
 

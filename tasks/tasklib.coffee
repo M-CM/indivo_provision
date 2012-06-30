@@ -2,6 +2,8 @@ child_process = require "child_process"
 control = require "control"
 util = require "util"
 
+#Run a shell script over ssh. Streams the script content to the remote
+#ssh process's stdin thus no temporary files are necessary
 control.controller.script = (script, sudo=false, callback) ->
   if typeof(sudo) == 'function'
     callback = sudo

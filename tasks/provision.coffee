@@ -1,3 +1,6 @@
+#Provisions a new rackspace virtual machine instance
+#Takes settings from the server configuration for name, flavorName, and imageName
+
 _ = require "underscore"
 async = require "async"
 cloudservers = require "cloudservers"
@@ -11,13 +14,12 @@ out = console.log
 provision = (server) ->
   getCreds ->
     client = cloudservers.createClient conf.rackspace
-    serverConf = server.conf
     async.parallel
-      flavor: (callback) -> getFlavor(client, serverConf.flavorName, callback)
-      image: (callback) -> getImage(client, serverConf.imageName, callback)
+      flavor: (callback) -> getFlavor(client, server.flavorName, callback)
+      image: (callback) -> getImage(client, server.imageName, callback)
       (error, opt) ->
         return exit(error) if error
-        opt.name = serverConf.name
+        opt.name = server.name
         opt.client = client
         console.dir conf.servers[server.configName]
         createServer opt, (cloudServer) ->

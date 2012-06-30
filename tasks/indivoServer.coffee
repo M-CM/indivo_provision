@@ -1,3 +1,5 @@
+#Downloads and installs the indivo server
+#Configures the settings.py and util/indivo_data.xml configuration files
 conf = require "../conf"
 control = require "control"
 

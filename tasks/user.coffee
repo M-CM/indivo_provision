@@ -1,3 +1,5 @@
+#Creates or updates a linux user account
+
 control = require "control"
 fs = require "fs"
 path = require "path"

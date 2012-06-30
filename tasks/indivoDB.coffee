@@ -1,3 +1,8 @@
+#Sets up the Indivo database on PostgreSQL 9
+#Configures md5 authentication
+#Creates an "indivo" user in the DB
+#Drops (if needed) and recreates the indivo database
+
 conf = require "../conf"
 control = require "control"
 

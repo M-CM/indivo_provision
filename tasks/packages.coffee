@@ -1,3 +1,6 @@
+#Installs an arbitrary list of Debian/Ubuntu packages as provided in the
+#server.packages array of strings
+
 conf = require "../conf"
 control = require "control"
 
