@@ -30,4 +30,14 @@ for name, server of exports.servers
   server.user = process.env.USER
 exports.rackspace =
   auth:
-    username: "christycollins"
+    username: "focusaurus"
+plyons =
+  login: "plyons"
+  groups: ["sudo"]
+  password: "$6$bNqJ1oCE$qgeMw1MYPF.4v4UdlyHUcm9CfKxbdL14RC7Hu2wTeH2qnEYF0Yf5uaZ2pef2mR4OMlVkDQ3En3cuyXZCBYY.t1"
+indivo =
+  login: "indivo"
+  system: true
+  groups: []
+
+exports.users = [plyons, indivo]

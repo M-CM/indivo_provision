@@ -1,10 +1,15 @@
 #Downloads and installs the indivo UI server
 #Configures the settings.py and util/indivo_data.xml configuration files
+async = require "async"
 conf = require "../conf"
 control = require "control"
+indivoServer = require "./indivoServer"
+permissions = require "../lib/permissions"
+upstart = require "../lib/upstart"
 
-indivoUIServer = (server, callback) ->
+installServer = (server, callback) ->
   script = """#!/bin/sh -e
+########## download ##########
 cd /tmp
 DIST_URL="#{conf.indivo.UIDistURL}"
 ARCHIVE=$(basename "${DIST_URL}")
@@ -14,10 +19,17 @@ curl --silent --remote-name "${DIST_URL}"
 if [ -d "${BASE}" ]; then
   mv "${BASE}" "${BASE}.old.$$"
 fi
+
+########## extract ##########
 mkdir -p "${PREFIX}"
 tar xzf "${ARCHIVE}" -C "${PREFIX}"
 rm "${ARCHIVE}"
 cd "${BASE}"
+
+########## permissions ##########
+#{permissions "indivo:sudo"}
+
+########## configuration ##########
 cp settings.py.default settings.py
 BASEHOST="#{server.address}"
 cat << EOF >> settings.py
@@ -35,6 +47,15 @@ EOF
 """
   server.script script, true, callback
 
-control.task "indivoUIServer", "Install the Indivo UI Server Software", indivoUIServer
+
+indivoUIServer = (server) ->
+  async.series [
+    async.apply installServer, server
+    async.apply upstart, server, "indivo_ui_server"
+  ], (error) ->
+      throw error if error
+
+description = "Install the Indivo UI Server Software"
+control.task "indivoUIServer", description, indivoUIServer
 
 module.exports = {indivoUIServer}

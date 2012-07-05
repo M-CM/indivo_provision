@@ -8,7 +8,8 @@ provision = require "./tasks/provision"
 require "./tasks/indivoDB"
 require "./tasks/indivoServer"
 require "./tasks/indivoUIServer"
-require "./tasks/user"
+require "./tasks/users"
+require "./tasks/sshKey"
 tasklib = require "./tasks/tasklib"
 
 for name, settings of conf.servers

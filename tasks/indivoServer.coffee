@@ -3,16 +3,22 @@
 async = require "async"
 conf = require "../conf"
 control = require "control"
+fs = require "fs"
 path = require "path"
+permissions = require "../lib/permissions"
+upstart = require "../lib/upstart"
 
 installServer = (server, callback) ->
   script = """#!/bin/sh -e
+########## download ##########
 cd /tmp
 SERVER_DIST_URL="#{conf.indivo.serverDistURL}"
 ARCHIVE=$(basename "${SERVER_DIST_URL}")
 PREFIX="#{conf.indivo.installPrefix}"
 BASE="${PREFIX}/indivo_server"
 curl --silent --remote-name "${SERVER_DIST_URL}"
+
+########## extract ##########
 if [ -d "${BASE}" ]; then
   mv "${BASE}" "${BASE}.old.$$"
 fi
@@ -20,6 +26,8 @@ mkdir -p "${PREFIX}"
 tar xzf "${ARCHIVE}" -C "${PREFIX}"
 rm "${ARCHIVE}"
 cd "${BASE}"
+
+########## settings ##########
 cp settings.py.default settings.py
 cat << EOF >> settings.py
 ########## BEGIN M-CM CUSTOMIZATION ##########
@@ -47,6 +55,14 @@ DATABASES = {
         },
 }
 EOF
+
+########## permissions ##########
+touch indivo.log
+#{permissions "indivo:sudo"}
+chmod u+w indivo.log
+#Need group write so we can copy XML file and reset script into place
+chmod g+w utils
+chmod g+w utils/reset.py
 """
   server.script script, true, callback
 
@@ -62,18 +78,17 @@ resetDB = (server, callback) ->
 cd "#{conf.indivo.installPrefix}/indivo_server"
 #Can't use the stock reset.py. I send in a pull request for a fix
 #https://github.com/chb/indivo_server/pull/18
-#don't syncdb because we have done this already and it prompts for password
-echo yes | python utils/reset.py --no-syncdb
+su -c 'echo yes | python utils/reset.py' indivo
 """
-  server.script script, false, callback, callback
+  server.script script, true, callback, callback
 
 indivoServer = (server) ->
   async.series [
     async.apply installServer, server
     async.apply copyConfig, server
-    async.apply resetDB, server], (error) ->
+    async.apply resetDB, server
+    async.apply upstart, server, "indivo_server"
+  ], (error) ->
       throw error if error
 
 control.task "indivoServer", "Install the Indivo Server Software", indivoServer
-
-module.exports = {indivoServer}

@@ -28,8 +28,16 @@ the code can automatically download and install the rest of its dependencies.
 * Run the following "do" commands
 
   ./do staging provision
-  ./do staging user
+  ./do staging users
   ./do staging packages
   ./do staging easyInstall
   ./do staging indivoDB
   ./do staging indivoServer
+
+* ssh into the server and manually run the DB reset
+
+  ssh root@<server_IP>
+  cd /web/indivo_server
+  python utils/reset.py
+
+* When prompted, type "yes"
