@@ -6,7 +6,6 @@ control = require "control"
 fs = require "fs"
 path = require "path"
 permissions = require "../lib/permissions"
-upstart = require "../lib/upstart"
 
 installServer = (server, callback) ->
   script = """#!/bin/sh -e
@@ -68,7 +67,6 @@ service apache2 reload
 indivoUIServer = (server) ->
   async.series [
     async.apply installServer, server
-    async.apply upstart, server, "indivo_ui_server"
     async.apply configureApache, server
   ], (error) ->
       throw error if error

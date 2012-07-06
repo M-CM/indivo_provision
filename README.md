@@ -27,13 +27,21 @@ the code can automatically download and install the rest of its dependencies.
 * cd into the repository root directory
 * Run the following "do" commands
 
-  ./do staging provision
-  ./do staging users
-  ./do staging packages
-  ./do staging easyInstall
-  ./do staging indivoDB
-  ./do staging indivoServer
+  ./do development provision
 
+* Copy the adminPass that gets printed out. You'll need it for the "users" task below. You can change it by ssh-ing in as root and running `passwd`.
+
+  ./do development users
+
+* You will see a warning about "The authenticity of host '...' can't be established.". Type "yes" to continue.
+* When prompted, enter the root (admin) password
+  ./do development sshKey
+  ./do development packages
+  ./do development easyInstall
+  ./do development indivoDB
+  ./do development indivoServer
+
+* Note that `./do development provision` will create a new rackspace VM, which will have a new IP address. The new IP address will be updated in the `conf/servers.json` file, so you may want to add and commit that to git
 * ssh into the server and manually run the DB reset
 
   ssh root@<server_IP>
@@ -41,3 +49,6 @@ the code can automatically download and install the rest of its dependencies.
   python utils/reset.py
 
 * When prompted, type "yes"
+* When prompted for a password, type the indivo DB password
+
+  ./do development indivoUIServer

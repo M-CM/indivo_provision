@@ -14,23 +14,24 @@ runScript = (script, server, callback) ->
 addUser = (users, server, callback) ->
   ops = []
   for user in users
-    script = "#!/bin/sh\n"
-    script += "adduser --disabled-password "
-    #Don't do --system since it makes their shell /bin/false
-    #Which makes troubleshooting a pain
-    #if user.system
-    #  script += "--system --quiet "
-    script += "--home /home/#{user.login} "
-    script += "#{user.login}\n"
+    script = """#!/bin/sh
+adduser --disabled-password --quiet --gecos '' --home /home/#{user.login} #{user.login} || /bin/true\n
+"""
     for group in user.groups
       script += "addgroup #{user.login} #{group}\n"
     ops.push async.apply(runScript, script, server)
   async.series ops, callback
 
+sudoers = (server, callback) ->
+  from = path.join __dirname, "..", "deploy", "sudoers"
+  server.scp from, "/etc/sudoers", callback, callback
+
 control.task "users", "Create OS user accounts", (server) ->
   server.user = "root"
-  addUser conf.users, server, (error) ->
+  async.series [
+    async.apply addUser, conf.users, server
+    async.apply sudoers, server
+  ], (error) ->
     throw error if error
-    #sshKey server
 
-module.exports = {addUser}
+module.exports = {addUser, sudoers}
