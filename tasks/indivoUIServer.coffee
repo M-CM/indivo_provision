@@ -3,7 +3,6 @@
 async = require "async"
 conf = require "../conf"
 control = require "control"
-indivoServer = require "./indivoServer"
 permissions = require "../lib/permissions"
 upstart = require "../lib/upstart"
 
@@ -26,9 +25,6 @@ tar xzf "${ARCHIVE}" -C "${PREFIX}"
 rm "${ARCHIVE}"
 cd "${BASE}"
 
-########## permissions ##########
-#{permissions "indivo:sudo"}
-
 ########## configuration ##########
 cp settings.py.default settings.py
 BASEHOST="#{server.address}"
@@ -44,6 +40,10 @@ SECRET_KEY = 'M-CMDEVELOPMENT-INDIVO-SECRET-KEY'
 # URL prefix (where indivo_server will be accessible from the web)
 SITE_URL_PREFIX = "http://${BASEHOST}"
 EOF
+
+########## permissions ##########
+#{permissions "indivo:sudo"}
+chmod u+w sessions
 """
   server.script script, true, callback
 
