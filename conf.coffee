@@ -14,6 +14,7 @@ exports.indivo =
 packages = [
   "apache2-mpm-prefork"
   "curl" #Scripts use this to download files from the web
+  "libapache2-mod-wsgi"
   "postgresql"
   "python-django"
   "python-lxml"

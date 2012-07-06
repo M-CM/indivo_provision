@@ -3,6 +3,8 @@
 async = require "async"
 conf = require "../conf"
 control = require "control"
+fs = require "fs"
+path = require "path"
 permissions = require "../lib/permissions"
 upstart = require "../lib/upstart"
 
@@ -42,16 +44,32 @@ SITE_URL_PREFIX = "http://${BASEHOST}"
 EOF
 
 ########## permissions ##########
-#{permissions "indivo:sudo"}
+#{permissions "www-data:sudo", "444", "555"}
 chmod u+w sessions
 """
   server.script script, true, callback
 
+configureApache = (server, callback) ->
+  vhostPath = path.join(__dirname,
+    "../deploy/apache2/sites-available/indivo".split("/")...)
+  vhost = fs.readFileSync(vhostPath).toString()
+  script = """#!/bin/sh -e
+########## apache setup ##########
+cat << EOF > /etc/apache2/sites-available/indivo
+#{vhost.trim()}
+EOF
+a2enmod wsgi
+a2dissite default
+a2ensite indivo
+service apache2 reload
+"""
+  server.script script, true, callback, callback
 
 indivoUIServer = (server) ->
   async.series [
     async.apply installServer, server
     async.apply upstart, server, "indivo_ui_server"
+    async.apply configureApache, server
   ], (error) ->
       throw error if error
 

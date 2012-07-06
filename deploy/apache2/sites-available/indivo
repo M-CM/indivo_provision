@@ -1,0 +1,18 @@
+<VirtualHost *:80>
+  ServerAdmin christy@m-cm.net
+  ServerName localhost
+  DocumentRoot /web/indivo_ui_server
+  Alias /static/ /web/indivo_ui_server/ui/static/
+  EnableMMAP On
+  EnableSendfile On
+  LogLevel warn
+
+  <Directory /web/indivo_ui_server>
+   Order deny,allow
+   Allow from all
+  </Directory>
+
+  WSGIDaemonProcess indivo_ui user=indivo group=www-data processes=1 maximum-requests=500 threads=10
+  WSGIScriptAlias / /web/indivo_ui_server/django.wsgi
+  WSGIPassAuthorization On
+</VirtualHost>

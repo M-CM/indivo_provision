@@ -1,7 +1,7 @@
-permissions = (owner) ->
+permissions = (owner, fileMode="440", dirMode="550") ->
   """chown -R #{owner} .
-chmod -R 440 .
-find . -type d -print0 | xargs -0 chmod 550
+chmod -R #{fileMode} .
+find . -type d -print0 | xargs -0 chmod #{dirMode}
 """
 
 module.exports = permissions
