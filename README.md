@@ -79,3 +79,4 @@ the code can automatically download and install the rest of its dependencies.
 
 * At this point the Indivo UI Server should be up and running, so put the server's IP address into your web browser
 * You should be able to register a new account and begin using the Indivo sample applications
+    * *NOTE* emails are likely to be sent to your Spam folder initially since they are from a rackspace system, but they do seem to go out and make it all the way to gmail. Once you remove the "spam" label, all is well for receiving future emails from Indivo.
