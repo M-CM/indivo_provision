@@ -57,6 +57,7 @@ the code can automatically download and install the rest of its dependencies.
 ```
 ./do development packages
 ./do development easyInstall
+./do development email
 ./do development indivoDB
 ./do development indivoServer
 ```
@@ -65,8 +66,8 @@ the code can automatically download and install the rest of its dependencies.
 
 ```
     ssh root@<server_IP>
-    cd /web/indivo_server
-    python utils/reset.py
+    python /web/indivo_server/utils/reset.py
+    exit
 ```
 
 * When prompted, type "yes"
