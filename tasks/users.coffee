@@ -29,6 +29,7 @@ control.task "users", "Create OS user accounts", (server) ->
   server.user = "root"
   conf.users.push
     login: process.env["USER"]
+    groups: ["sudo"]
   for user in conf.users
     _.defaults user, {groups: [], system: false}
   async.series [
