@@ -45,12 +45,12 @@ the code can automatically download and install the rest of its dependencies.
 * To use an alternate login or ssh key path, provide them on the command line
   * ./do development sshKey mylogin ~/mykey
 * Normal user accounts don't allow password login as configured here, only ssh key. If you want password login, ssh in (using your sshkey) and run `passwd`.
-
-    ./do development packages
-    ./do development easyInstall
-    ./do development indivoDB
-    ./do development indivoServer
-
+```
+./do development packages
+./do development easyInstall
+./do development indivoDB
+./do development indivoServer
+```
 * ssh into the server and manually run the DB reset
 
     ssh root@<server_IP>
