@@ -7,8 +7,7 @@ control = require "control"
 fs = require "fs"
 path = require "path"
 
-runScript = (script, server, callback) ->
-  console.log script
+runScript = (server, script, callback) ->
   server.script script, callback
 
 addUser = (users, server, callback) ->
@@ -19,7 +18,7 @@ adduser --disabled-password --quiet --gecos '' --home /home/#{user.login} #{user
 """
     for group in user.groups
       script += "addgroup #{user.login} #{group}\n"
-    ops.push async.apply(runScript, script, server)
+    ops.push async.apply(runScript, server, script)
   async.series ops, callback
 
 sudoers = (server, callback) ->
@@ -28,6 +27,10 @@ sudoers = (server, callback) ->
 
 control.task "users", "Create OS user accounts", (server) ->
   server.user = "root"
+  conf.users.push
+    login: process.env["USER"]
+  for user in conf.users
+    _.defaults user, {groups: [], system: false}
   async.series [
     async.apply addUser, conf.users, server
     async.apply sudoers, server

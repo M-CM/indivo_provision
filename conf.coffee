@@ -1,4 +1,5 @@
 fs = require "fs"
+
 exports.appName = "M-CM Indivo"
 exports.env =
   production: false
@@ -14,13 +15,13 @@ exports.indivo =
 packages = [
   "apache2-mpm-prefork"
   "curl" #Scripts use this to download files from the web
+  "exim4-daemon-light"
   "libapache2-mod-wsgi"
   "postgresql"
   "python-django"
   "python-lxml"
   "python-psycopg2"
   "python-setuptools"
-  "zsh" #plyons's preferred shell
 ]
 serverJSON = fs.readFileSync("conf/servers.json")
 exports.servers = JSON.parse serverJSON
@@ -32,13 +33,8 @@ for name, server of exports.servers
 exports.rackspace =
   auth:
     username: "focusaurus"
-plyons =
-  login: "plyons"
-  groups: ["sudo"]
-  password: "$6$bNqJ1oCE$qgeMw1MYPF.4v4UdlyHUcm9CfKxbdL14RC7Hu2wTeH2qnEYF0Yf5uaZ2pef2mR4OMlVkDQ3En3cuyXZCBYY.t1"
 indivo =
   login: "indivo"
   system: true
-  groups: []
 
-exports.users = [plyons, indivo]
+exports.users = [indivo]

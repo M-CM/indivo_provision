@@ -54,6 +54,12 @@ DATABASES = {
         'PORT':'', # Set to empty string for default.
         },
 }
+SEND_MAIL = True # Turn email on at all?
+EMAIL_HOST = "localhost"
+EMAIL_PORT = 25
+EMAIL_FROM_ADDRESS = "M-CM Indivo <support@m-cm.net>"
+EMAIL_SUPPORT_ADDRESS = "support@m-cm.net"
+EMAIL_SUPPORT_NAME = "M-CM Indivo Support"
 EOF
 
 ########## permissions ##########
