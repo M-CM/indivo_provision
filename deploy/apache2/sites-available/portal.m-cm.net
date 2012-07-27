@@ -1,0 +1,26 @@
+<VirtualHost *:80>
+   Redirect permanent / https:/portal.m-cm.net
+   ServerName portal.m-cm.net
+</VirtualHost>
+
+<VirtualHost *:443>
+  Alias /static/ /web/indivo_ui_server/ui/static/
+  DocumentRoot /web/indivo_ui_server
+  EnableMMAP On
+  EnableSendfile On
+  LogLevel warn
+  ServerAdmin christy@m-cm.net
+  ServerName portal.m-cm.net
+  SSLCertificateChainFile /etc/apache2/sites-available/portal.m-cm.net.2012.ca-bundle
+  SSLCertificateFile /etc/apache2/sites-available/portal.m-cm.net.2012.crt
+  SSLCertificateKeyFile /etc/apache2/sites-available/portal.m-cm.net.key
+  SSLEngine On
+  WSGIDaemonProcess indivo_ui user=indivo group=www-data processes=1 maximum-requests=500 threads=10
+  WSGIPassAuthorization On
+  WSGIScriptAlias / /web/indivo_ui_server/django.wsgi
+
+  <Directory /web/indivo_ui_server>
+   Order deny,allow
+   Allow from all
+  </Directory>
+</VirtualHost>

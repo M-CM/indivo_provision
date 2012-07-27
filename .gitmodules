@@ -1,0 +1,3 @@
+[submodule "makitso"]
+	path = makitso
+	url = git@github.com:focusaurus/makitso.git
