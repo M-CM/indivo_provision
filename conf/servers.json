@@ -2,9 +2,5 @@
   "development": {
     "hostname": "50.57.49.63",
     "name": "M-CM-indivox-dev"
-  },
-  "plyons": {
-    "hostname": "209.20.87.67",
-    "name": "plyons-m-cm-dev"
   }
 }
