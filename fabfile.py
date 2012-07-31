@@ -21,14 +21,14 @@ sys.path.append("./tasks")
 
 #from fabric.api import local
 #from fabric.api import sudo
-from indivo_server import indivoServer
-from indivo_ui_server import indivoUIServer
 from exim import email
 from fabric.api import env
 from fabric.api import execute
 from fabric.api import run
 from fabric.api import task
 from fabric.contrib.files import settings
+from indivo_server import indivoServer
+from indivo_ui_server import indivoUIServer
 from libcloud.compute.deployment import MultiStepDeployment
 from libcloud.compute.deployment import ScriptDeployment
 from libcloud.compute.deployment import SSHKeyDeployment
@@ -36,15 +36,14 @@ from makitso.cloud import chooseCloudOption
 from makitso.cloud import cloudConnect
 from makitso.cloud import getNode
 from makitso.cloud import setRootPassword
-from makitso.server_conf import getServerConf
-from makitso.server_conf import ServerTask
-from makitso.server_conf import setServerConf
+from makitso.server_conf import serverTask
 from makitso.util import dot
 from makitso.util import out
 from makitso.util import script
 import makitso.cloud as cloud
 import makitso.debian as debian
 import makitso.packages as packages
+import makitso.server_conf as server_conf
 import makitso.util as util
 
 
@@ -75,9 +74,9 @@ def provision():
         dot()
     out("Node is up.")
     env.host_string = node.public_ips[0]
-    conf = getServerConf(SERVER_CONF_PATH)
+    conf = server_conf.getServerConf(SERVER_CONF_PATH)
     conf[env.server["label"]]["hostname"] = node.public_ips[0]
-    setServerConf(conf, SERVER_CONF_PATH)
+    server_conf.setServerConf(conf, SERVER_CONF_PATH)
     setRootPassword(node.uuid, rootPassword)
     #Make my shell zsh
     with settings(user="root"):
@@ -113,7 +112,7 @@ EOF
 @task
 def servers():
     """Show configured target servers"""
-    util.printJSON(getServerConf(SERVER_CONF_PATH))
+    util.printJSON(server_conf.getServerConf(SERVER_CONF_PATH))
 
 
 @task
@@ -125,8 +124,21 @@ def fullBuild():
     execute(indivoUIServer)
 
 ##### define a task for each serer in servers.json #####
-for name, conf in getServerConf(SERVER_CONF_PATH).iteritems():
-    instance = ServerTask(name)
+#GOOD 1
+# for name, conf in getServerConf(SERVER_CONF_PATH).iteritems():
+#     def serverTask():
+#         out("serverTask running as {}".format(name))
+#         env.server = getServerConf()[name]
+#         env.server["label"] = name
+#         env.hosts.append(env.server["hostname"])
+#     serverTask.__name__ = str(name)
+#     serverTask.__doc__ = "Deploy to {}".format(name)
+#     setattr(sys.modules[__name__], serverTask.__name__, task(serverTask))
+#     #t = task(serverTask)
+#     out(id(serverTask))
+for name, conf in server_conf.getServerConf(SERVER_CONF_PATH).iteritems():
+    func = serverTask(name)
+    setattr(sys.modules[__name__], func.__name__, func)
 
 env.config = SafeConfigParser({"installPrefix": "/web"})
 env.config.read("conf/settings.conf")
