@@ -1,5 +1,5 @@
 <VirtualHost *:80>
-   Redirect permanent / https:/portal.m-cm.net
+   Redirect permanent / https://portal.m-cm.net/
    ServerName portal.m-cm.net
 </VirtualHost>
 
