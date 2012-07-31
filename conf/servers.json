@@ -1,7 +1,6 @@
 {
   "development": {
-    "name": "M-CM-indivox-dev",
-    "address": "50.57.49.63",
-    "flavorName": "256 server"
+    "hostname": "50.57.49.63",
+    "name": "M-CM-indivox-dev"
   }
 }
