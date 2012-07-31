@@ -118,24 +118,11 @@ def servers():
 @task
 def fullBuild():
     """Create a new RackSpace VM and install Indivo X from scratch"""
-    node = execute(provision)
+    execute(provision)
     execute(email)
     execute(indivoServer)
     execute(indivoUIServer)
 
-##### define a task for each serer in servers.json #####
-#GOOD 1
-# for name, conf in getServerConf(SERVER_CONF_PATH).iteritems():
-#     def serverTask():
-#         out("serverTask running as {}".format(name))
-#         env.server = getServerConf()[name]
-#         env.server["label"] = name
-#         env.hosts.append(env.server["hostname"])
-#     serverTask.__name__ = str(name)
-#     serverTask.__doc__ = "Deploy to {}".format(name)
-#     setattr(sys.modules[__name__], serverTask.__name__, task(serverTask))
-#     #t = task(serverTask)
-#     out(id(serverTask))
 for name, conf in server_conf.getServerConf(SERVER_CONF_PATH).iteritems():
     func = serverTask(name)
     setattr(sys.modules[__name__], func.__name__, func)
