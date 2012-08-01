@@ -56,7 +56,7 @@ service apache2 reload
 
 
 @task
-def indivoUIServer():
+def indivo_ui_server():
     """Install the Indivo X 2.0 UI Server and its prerequisites"""
     packages.apt([
         "curl",  # Scripts use this to download files from the web

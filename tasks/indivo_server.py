@@ -5,8 +5,8 @@ from fabric.api import sudo
 from fabric.api import run
 from fabric.context_managers import cd
 from makitso import packages
-from makitso.debian import makeUpstartScript
-from makitso.debian import makeUserScript
+from makitso.debian import make_upstart_script
+from makitso.debian import make_user_script
 import makitso
 import os
 
@@ -101,7 +101,7 @@ chmod g+w indivo.log
 
 
 @task
-def indivoServer():
+def indivo_server():
     """Install the Indivo X 2.0 Back End Server and its prerequisites"""
     packages.apt([
         "curl",  # Scripts use this to download files from the web
@@ -111,13 +111,13 @@ def indivoServer():
         "python-psycopg2",  # Django->PostgreSQL
         "python-setuptools"
     ])
-    packages.easyInstall([
+    packages.easy_install([
         "Markdown",
         "python-dateutil",
         "rdflib",
         "South"
     ])
-    makitso.util.script(makeUserScript("indivo"), sudo, "Create indivo user")
+    makitso.util.script(make_user_script("indivo"), sudo, "Create indivo user")
     makitso.util.script(DB_RESET_SCRIPT, sudo, "Reset Indivo DB")
 
     vars = dict(env.config.items("indivo"))
@@ -133,6 +133,6 @@ def indivoServer():
         run("echo yes | python utils/reset.py")
     upstartPath = os.path.join("deploy", "init", "indivo_server.conf")
     makitso.util.script(
-        makeUpstartScript(upstartPath),
+        make_upstart_script(upstartPath),
         sudo,
         "Configure upstart for Indivo Server")

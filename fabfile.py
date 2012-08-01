@@ -27,16 +27,16 @@ from fabric.api import execute
 from fabric.api import run
 from fabric.api import task
 from fabric.contrib.files import settings
-from indivo_server import indivoServer
-from indivo_ui_server import indivoUIServer
+from indivo_server import indivo_server
+from indivo_ui_server import indivo_ui_server
 from libcloud.compute.deployment import MultiStepDeployment
 from libcloud.compute.deployment import ScriptDeployment
 from libcloud.compute.deployment import SSHKeyDeployment
-from makitso.cloud import chooseCloudOption
-from makitso.cloud import cloudConnect
-from makitso.cloud import getNode
-from makitso.cloud import setRootPassword
-from makitso.server_conf import serverTask
+from makitso.cloud import choose_cloud_option
+from makitso.cloud import cloud_connect
+from makitso.cloud import get_node
+from makitso.cloud import set_root_password
+from makitso.server_conf import server_task
 from makitso.util import dot
 from makitso.util import out
 from makitso.util import script
@@ -56,28 +56,28 @@ SIZE_RE = re.compile("^256 ")
 @task
 def provision():
     """Create a new cloud server instance"""
-    conn = cloudConnect()
-    image = chooseCloudOption(conn.list_images, IMAGE_RE, "image")
-    size = chooseCloudOption(conn.list_sizes, SIZE_RE, "size")
+    conn = cloud_connect()
+    image = choose_cloud_option(conn.list_images, IMAGE_RE, "image")
+    size = choose_cloud_option(conn.list_sizes, SIZE_RE, "size")
     rootPassword = getpass.getpass(
         "Choose a root password for the new server: ")
-    sshKey = util.getSSHKey()
-    users = ScriptDeployment(debian.makeUserScript(os.environ["USER"], sshKey))
+    ssh_key = util.get_ssh_key()
+    users = ScriptDeployment(debian.make_user_script(os.environ["USER"], ssh_key))
 
     # a task that first installs the ssh key, and then runs the script
-    msd = MultiStepDeployment([SSHKeyDeployment(sshKey), users])
+    msd = MultiStepDeployment([SSHKeyDeployment(ssh_key), users])
     out("Creating %s (%s) on %s" % (image.name, size.name, image.driver.name))
     node = conn.deploy_node(name=env.server["name"], image=image, size=size,
         deploy=msd)
     out(node)
-    while getNode(node.uuid).state != 0:
+    while get_node(node.uuid).state != 0:
         dot()
     out("Node is up.")
     env.host_string = node.public_ips[0]
-    conf = server_conf.getServerConf(SERVER_CONF_PATH)
+    conf = server_conf.read(SERVER_CONF_PATH)
     conf[env.server["label"]]["hostname"] = node.public_ips[0]
-    server_conf.setServerConf(conf, SERVER_CONF_PATH)
-    setRootPassword(node.uuid, rootPassword)
+    server_conf.write(conf, SERVER_CONF_PATH)
+    set_root_password(node.uuid, rootPassword)
     #Make my shell zsh
     with settings(user="root"):
         packages.apt("zsh")
@@ -89,9 +89,9 @@ def provision():
 
 
 @task
-def sshKey():
+def ssh_key():
     """Install your SSH public key as an authorized key on the server"""
-    key = util.getSSHKey()
+    key = util.get_ssh_key()
     login = os.environ["USER"]
     authKeysPath = "~%s/.ssh/authorized_keys" % login
     scriptText = """KEYS=~%(login)s/.ssh/authorized_keys
@@ -112,20 +112,19 @@ EOF
 @task
 def servers():
     """Show configured target servers"""
-    util.printJSON(server_conf.getServerConf(SERVER_CONF_PATH))
+    util.print_json(server_conf.read(SERVER_CONF_PATH))
 
 
 @task
-def fullBuild():
+def full_build():
     """Create a new RackSpace VM and install Indivo X from scratch"""
     execute(provision)
     execute(email)
-    execute(indivoServer)
-    execute(indivoUIServer)
+    execute(indivo_server)
+    execute(indivo_ui_server)
 
-for name, conf in server_conf.getServerConf(SERVER_CONF_PATH).iteritems():
-    func = serverTask(name)
-    setattr(sys.modules[__name__], func.__name__, func)
+for name in server_conf.read(SERVER_CONF_PATH).keys():
+    setattr(sys.modules[__name__], name, server_task(name))
 
 env.config = SafeConfigParser({"installPrefix": "/web"})
 env.config.read("conf/settings.conf")
