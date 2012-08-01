@@ -63,8 +63,8 @@ def indivo_ui_server():
         "apache2-mpm-prefork",
         "libapache2-mod-wsgi"
     ])
-    sitesPath = os.path.join("deploy", "apache2", "sites-available", "*")
-    put(sitesPath,  "/etc/apache2/sites-available", use_sudo=True, mode=0400)
+    sites_path = os.path.join("deploy", "apache2", "sites-available", "*")
+    put(sites_path,  "/etc/apache2/sites-available", use_sudo=True, mode=0400)
 
     vars = dict(env.config.items("indivo"))
     vars["permissions"] = makitso.util.permissions("www-data:sudo", 444, 555)

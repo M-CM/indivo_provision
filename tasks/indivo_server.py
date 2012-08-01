@@ -131,8 +131,8 @@ def indivo_server():
     put("deploy/indivo/reset.py", utils, use_sudo=True)
     with cd(base):
         run("echo yes | python utils/reset.py")
-    upstartPath = os.path.join("deploy", "init", "indivo_server.conf")
+    upstart_path = os.path.join("deploy", "init", "indivo_server.conf")
     makitso.util.script(
-        make_upstart_script(upstartPath),
+        make_upstart_script(upstart_path),
         sudo,
         "Configure upstart for Indivo Server")

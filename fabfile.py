@@ -10,9 +10,9 @@ try:
     from libcloud.compute.deployment import MultiStepDeployment
 except ImportError:
     pip = os.path.join("python", "bin", "pip")
-    exitCode = os.system("%s install -r requirements.txt" % pip)
-    if exitCode != 0:
-        sys.exit(exitCode)
+    exit_code = os.system("%s install -r requirements.txt" % pip)
+    if exit_code != 0:
+        sys.exit(exit_code)
 
 BASE_DIR = os.path.dirname(__file__)
 os.chdir(BASE_DIR or ".")
@@ -56,10 +56,12 @@ SIZE_RE = re.compile("^256 ")
 @task
 def provision():
     """Create a new cloud server instance"""
+    if "server" not in env:
+        util.exit("Please specify a target server")
     conn = cloud_connect()
     image = choose_cloud_option(conn.list_images, IMAGE_RE, "image")
     size = choose_cloud_option(conn.list_sizes, SIZE_RE, "size")
-    rootPassword = getpass.getpass(
+    root_password = getpass.getpass(
         "Choose a root password for the new server: ")
     ssh_key = util.get_ssh_key()
     users = ScriptDeployment(debian.make_user_script(os.environ["USER"], ssh_key))
@@ -77,7 +79,7 @@ def provision():
     conf = server_conf.read(SERVER_CONF_PATH)
     conf[env.server["label"]]["hostname"] = node.public_ips[0]
     server_conf.write(conf, SERVER_CONF_PATH)
-    set_root_password(node.uuid, rootPassword)
+    set_root_password(node.uuid, root_password)
     #Make my shell zsh
     with settings(user="root"):
         packages.apt("zsh")
@@ -93,8 +95,7 @@ def ssh_key():
     """Install your SSH public key as an authorized key on the server"""
     key = util.get_ssh_key()
     login = os.environ["USER"]
-    authKeysPath = "~%s/.ssh/authorized_keys" % login
-    scriptText = """KEYS=~%(login)s/.ssh/authorized_keys
+    script_text = """KEYS=~%(login)s/.ssh/authorized_keys
 DIR=$(dirname "${KEYS}")
 mkdir -p "${DIR}"
 touch "${KEYS}"
@@ -106,7 +107,7 @@ cat <<EOF>> "${KEYS}"
 EOF
 """ % locals()
     with settings(user="root"):
-        script(scriptText, "install ssh key to " + login)
+        script(script_text, "install ssh key to " + login)
 
 
 @task

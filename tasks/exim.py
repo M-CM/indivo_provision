@@ -15,6 +15,6 @@ service exim4 restart
 def email():
     """Install and configure the exim4 mail transport agent"""
     makitso.packages.apt("exim4-daemon-light")
-    configPath = os.path.join("deploy", "exim4", "update-exim4.conf.conf")
-    put(configPath, "/etc/exim4/update-exim4.conf.conf", use_sudo=True)
+    config_path = os.path.join("deploy", "exim4", "update-exim4.conf.conf")
+    put(config_path, "/etc/exim4/update-exim4.conf.conf", use_sudo=True)
     makitso.util.script(EMAIL_SCRIPT, sudo)
