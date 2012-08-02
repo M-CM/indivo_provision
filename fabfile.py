@@ -75,7 +75,7 @@ def provision():
     while get_node(node.uuid).state != 0:
         dot()
     out("Node is up.")
-    env.host_string = node.public_ips[0]
+    env.hosts[0] = env.host_string = node.public_ips[0]
     conf = server_conf.read(SERVER_CONF_PATH)
     conf[env.server["label"]]["hostname"] = node.public_ips[0]
     server_conf.write(conf, SERVER_CONF_PATH)
