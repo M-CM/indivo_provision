@@ -1,6 +1,6 @@
 Fabric==1.4.3
 apache-libcloud==0.10.1
-paramiko==1.7.7.2
+paramiko==2.0.9
 pycrypto==2.6
 requests==0.13.3
 ssh==1.7.14
